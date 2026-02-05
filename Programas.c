@@ -1,6 +1,8 @@
 #include "CPU.h"
 #include "RAM.h"
 #include "Instrucao.h"
+#include "MMU.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -76,6 +78,12 @@ void programaAleatorio(RAM *ram, CPU *cpu, int qdeIntrucoes) {
     int tamanhoRAM = 1000;
     
     criarRAM_aleatoria(ram, tamanhoRAM);
+
+    // configuração: L1=8 blocos, L2=16 blocos, L3=32 blocos
+    Cache l1, l2, l3;
+    inicializarCache(&l1, 8, 1);
+    inicializarCache(&l2, 16, 2);
+    inicializarCache(&l3, 32, 3);
     
     for (int i = 0; i < (qdeIntrucoes - 1); i++) {
         umPrograma[i].opcode = rand() % 2; // 0 ou 1
@@ -87,14 +95,24 @@ void programaAleatorio(RAM *ram, CPU *cpu, int qdeIntrucoes) {
     umPrograma[qdeIntrucoes - 1].opcode = -1;
     
     setPrograma(cpu, umPrograma);
-    iniciarCPU(cpu, ram);
+    iniciarCPU(cpu, ram, &l1, &l2, &l3);
     
+    imprimirEstatisticas(&l1, &l2, &l3);
+
+    free(l1.linhas);
+    free(l2.linhas);
+    free(l3.linhas);
     free(umPrograma);
 }
 // Funcao de multiplicacao
 void programaMult(RAM *ram, CPU *cpu, int multiplicando, int multiplicador) {
     printf("\n\t\t\tExecutando programaMult (%d x %d)\n", multiplicando, multiplicador);
     criarRAM_vazia(ram, 2);
+
+    Cache l1, l2, l3;
+    inicializarCache(&l1, 16, 1);
+    inicializarCache(&l2, 32, 2);
+    inicializarCache(&l3, 64, 3);
     
     Instrucao trecho1[] = {
         {4, 1, multiplicando, 0}, // opcode 4: salva multiplicando no registrador 1
@@ -102,7 +120,7 @@ void programaMult(RAM *ram, CPU *cpu, int multiplicando, int multiplicador) {
         {-1, 0, 0, 0}             // opcode -1: halt
     };
     setPrograma(cpu, trecho1);
-    iniciarCPU(cpu, ram);
+    iniciarCPU(cpu, ram, &l1, &l2, &l3);
     
     // Loop de soma (multiplicador vezes)
     for (int i = 0; i < multiplicador; i++) {
@@ -111,7 +129,7 @@ void programaMult(RAM *ram, CPU *cpu, int multiplicando, int multiplicador) {
             {-1, 0, 0, 0} // opcode -1: halt
         };
         setPrograma(cpu, trecho2);
-        iniciarCPU(cpu, ram);
+        iniciarCPU(cpu, ram, &l1, &l2, &l3);
     }
     
     // Trecho 3: Le o resultado (RAM[0]) para o registrador e ganha o valor (opcode 5)
@@ -121,7 +139,7 @@ void programaMult(RAM *ram, CPU *cpu, int multiplicando, int multiplicador) {
         {-1, 0, 0, 0}  //  opcode -1: halt
     };
     setPrograma(cpu, trecho3);
-    iniciarCPU(cpu, ram);
+    iniciarCPU(cpu, ram, &l1, &l2, &l3);
     
     printf("\nO resultado da multiplicacao eh: %d\n", trecho3[1].add2);
 }
@@ -133,6 +151,11 @@ void programaDiv(RAM *ram, CPU *cpu, int dividendo, int divisor) {
 
     criarRAM_vazia(ram, 4);
 
+    Cache l1, l2, l3;
+    inicializarCache(&l1, 16, 1);
+    inicializarCache(&l2, 32, 2);
+    inicializarCache(&l3, 64, 3);
+
     // Trecho 1: Inicializa RAM[0] com o dividendo e a RAM[1] com o divisor
     Instrucao trecho1[] = {
         {4, 1, dividendo, 0},  // Reg 1 = dividendo
@@ -142,7 +165,7 @@ void programaDiv(RAM *ram, CPU *cpu, int dividendo, int divisor) {
         {-1, 0, 0, 0}      //     opcode -1: halt
     };
     setPrograma(cpu, trecho1);
-    iniciarCPU(cpu, ram);
+    iniciarCPU(cpu, ram, &l1, &l2, &l3);
 
     // Trecho 2: Inicializa RAM[2] para ser o contador
     Instrucao trecho2[] = {
@@ -151,7 +174,7 @@ void programaDiv(RAM *ram, CPU *cpu, int dividendo, int divisor) {
         {-1, 0, 0, 0}	    //   opcode -1: halt
     };
     setPrograma(cpu, trecho2);
-    iniciarCPU(cpu, ram);
+    iniciarCPU(cpu, ram, &l1, &l2, &l3);
 
     int dividendoAtual = dividendo;
     while (dividendoAtual >= divisor) {
@@ -164,7 +187,7 @@ void programaDiv(RAM *ram, CPU *cpu, int dividendo, int divisor) {
             {-1, 0, 0, 0}    //     Opcode -1: halt
         };
         setPrograma(cpu, trecho3);
-        iniciarCPU(cpu, ram);
+        iniciarCPU(cpu, ram, &l1, &l2, &l3);
         
         dividendoAtual = trecho3[3].add2; 
     }
@@ -176,7 +199,7 @@ void programaDiv(RAM *ram, CPU *cpu, int dividendo, int divisor) {
         {-1, 0, 0, 0}     //   Opcode -1: halt
     };
     setPrograma(cpu, trecho4);
-    iniciarCPU(cpu, ram);
+    iniciarCPU(cpu, ram, &l1, &l2, &l3);
 
     printf("\nO resultado da divisao eh: %d\n", trecho4[1].add2);
 
@@ -186,6 +209,11 @@ void programaFat(RAM *ram, CPU *cpu, int fat) {
 
     printf("\n\t\t\tExecutando programaFat (%d!)\n", fat);
     int j = 1; 
+
+    Cache l1, l2, l3;
+    inicializarCache(&l1, 16, 1);
+    inicializarCache(&l2, 32, 2);
+    inicializarCache(&l3, 64, 3);
 
     for (int i = 1; i <= fat; i++) {
         programaMult(ram, cpu, j, i); 
@@ -197,7 +225,7 @@ void programaFat(RAM *ram, CPU *cpu, int fat) {
             {-1, 0, 0, 0}    //   Opcode -1: halt
         };
         setPrograma(cpu, trecho1);
-        iniciarCPU(cpu, ram);
+        iniciarCPU(cpu, ram, &l1, &l2, &l3);
         
         j = trecho1[1].add2; 
     }
@@ -209,7 +237,7 @@ void programaFat(RAM *ram, CPU *cpu, int fat) {
         {-1, 0, 0, 0}      //   Opcode -1: halt
     };
     setPrograma(cpu, trecho2);
-    iniciarCPU(cpu, ram);
+    iniciarCPU(cpu, ram, &l1, &l2, &l3);
 
     printf("\nO resultado do fatorial eh: %d\n", trecho2[1].add2);
 }
@@ -240,6 +268,11 @@ void programaSomaMatriz(RAM *ram, CPU *cpu, int cardinalidade) {
     
     int tamanhoTotal = 3 * tamanhoMatriz;
     criarRAM_vazia(ram, tamanhoTotal);
+
+    Cache l1, l2, l3;
+    inicializarCache(&l1, 16, 1);
+    inicializarCache(&l2, 32, 2);
+    inicializarCache(&l3, 64, 3);
     
     int endRam = 0;
     
@@ -252,7 +285,7 @@ void programaSomaMatriz(RAM *ram, CPU *cpu, int cardinalidade) {
                 {-1, 0, 0, 0} 		 //   Opcode -1: halt
             };
             setPrograma(cpu, trecho1);
-            iniciarCPU(cpu, ram);
+            iniciarCPU(cpu, ram, &l1, &l2, &l3);
             endRam++;
         }
     }
@@ -266,7 +299,7 @@ void programaSomaMatriz(RAM *ram, CPU *cpu, int cardinalidade) {
                 {-1, 0, 0, 0}  		 //   Opcode -1: halt
             };
             setPrograma(cpu, trecho2);
-            iniciarCPU(cpu, ram);
+            iniciarCPU(cpu, ram, &l1, &l2, &l3);
             endRam++;
         }
     }
@@ -280,7 +313,7 @@ void programaSomaMatriz(RAM *ram, CPU *cpu, int cardinalidade) {
             {-1, 0, 0, 0}  // opcode -1: halt
         };
         setPrograma(cpu, trecho3);
-        iniciarCPU(cpu, ram);
+        iniciarCPU(cpu, ram, &l1, &l2, &l3);
         endRam++;
     }
     
@@ -303,6 +336,11 @@ void programaEuclides(RAM *ram, CPU *cpu, int a, int b) {
     
     criarRAM_vazia(ram, 2);
 
+    Cache l1, l2, l3;
+    inicializarCache(&l1, 16, 1);
+    inicializarCache(&l2, 32, 2);
+    inicializarCache(&l3, 64, 3);
+
     Instrucao trecho1[] = {
         {4, 1, a, 0},         // Opcode 4 : Reg 1 == a
         {2, 1, 0, 0},        //  Opcode 2 : RAM[0] == Reg 1
@@ -311,7 +349,7 @@ void programaEuclides(RAM *ram, CPU *cpu, int a, int b) {
         {-1, 0, 0, 0}     //     Opcode -1: halt
     };
     setPrograma(cpu, trecho1);
-    iniciarCPU(cpu, ram);
+    iniciarCPU(cpu, ram, &l1, &l2, &l3);
 
     int val_a = a;
     int val_b = b;
@@ -327,7 +365,7 @@ void programaEuclides(RAM *ram, CPU *cpu, int a, int b) {
                 {-1, 0, 0, 0}   //     Opcode -1: halt
             };
             setPrograma(cpu, trecho_sub_a);
-            iniciarCPU(cpu, ram);
+            iniciarCPU(cpu, ram, &l1, &l2, &l3);
             val_a = trecho_sub_a[2].add2;
 
         } else if (val_b > val_a) {
@@ -341,7 +379,7 @@ void programaEuclides(RAM *ram, CPU *cpu, int a, int b) {
                 {-1, 0, 0, 0}  //     opcode -1: halt
             };
             setPrograma(cpu, trecho_sub_b);
-            iniciarCPU(cpu, ram);
+            iniciarCPU(cpu, ram, &l1, &l2, &l3);
             val_b = trecho_sub_b[2].add2;
         }
     }
@@ -356,7 +394,7 @@ void programaEuclides(RAM *ram, CPU *cpu, int a, int b) {
         {-1, 0, 0, 0}   	      //   Opcode -1: halt
     };
     setPrograma(cpu, trecho_salva_ram0);
-    iniciarCPU(cpu, ram);
+    iniciarCPU(cpu, ram, &l1, &l2, &l3);
     
     
     Instrucao trecho_final[] = {
@@ -365,7 +403,7 @@ void programaEuclides(RAM *ram, CPU *cpu, int a, int b) {
         {-1, 0, 0, 0}    //   Opcode -1: halt
     };
     setPrograma(cpu, trecho_final);
-    iniciarCPU(cpu, ram);
+    iniciarCPU(cpu, ram, &l1, &l2, &l3);
     
     printf("\nO resultado do MDC eh: %d\n", trecho_final[1].add2);
 }
@@ -378,6 +416,10 @@ void programaMMC(RAM *ram, CPU *cpu, int a, int b) {
     int mdc_ab;
     int mmc_final;
     
+    Cache l1, l2, l3;
+    inicializarCache(&l1, 16, 1);
+    inicializarCache(&l2, 32, 2);
+    inicializarCache(&l3, 64, 3);
 
     Instrucao trecho_leitura_ram0[] = {
         {3, 1, 0, 0},	    // Opcode 3: Reg 1 == RAM[0]
@@ -397,14 +439,14 @@ void programaMMC(RAM *ram, CPU *cpu, int a, int b) {
     
 
     setPrograma(cpu, trecho_leitura_ram0);
-    iniciarCPU(cpu, ram);
+    iniciarCPU(cpu, ram, &l1, &l2, &l3);
     produto_ab = trecho_leitura_ram0[1].add2;
     
     
     programaEuclides(ram, cpu, a, b);
     
     setPrograma(cpu, trecho_leitura_ram0);
-    iniciarCPU(cpu, ram);
+    iniciarCPU(cpu, ram, &l1, &l2, &l3);
     mdc_ab = trecho_leitura_ram0[1].add2;
     
     if (mdc_ab == 0) {
@@ -414,7 +456,7 @@ void programaMMC(RAM *ram, CPU *cpu, int a, int b) {
     programaDiv(ram, cpu, produto_ab, mdc_ab); 
     
     setPrograma(cpu, trecho_leitura_ram3);
-    iniciarCPU(cpu, ram);
+    iniciarCPU(cpu, ram, &l1, &l2, &l3);
     
     mmc_final = trecho_leitura_ram3[1].add2;
     printf("\nO resultado do MMC eh: %d\n", mmc_final);
@@ -433,6 +475,10 @@ void programaFibonat(RAM *ram, CPU *cpu, int n) {
 
     criarRAM_vazia(ram, 3);
 
+    Cache l1, l2, l3;
+    inicializarCache(&l1, 16, 1);
+    inicializarCache(&l2, 32, 2);
+    inicializarCache(&l3, 64, 3);
     
     Instrucao trecho1[] = {
         {4, 1, 0, 0}, //Opcode 4: load_reg: Reg 1 = 0
@@ -440,7 +486,7 @@ void programaFibonat(RAM *ram, CPU *cpu, int n) {
         {-1, 0, 0, 0}
     };
     setPrograma(cpu, trecho1);
-    iniciarCPU(cpu, ram);
+    iniciarCPU(cpu, ram, &l1, &l2, &l3);
 
     
     Instrucao trecho2[] = {
@@ -449,7 +495,7 @@ void programaFibonat(RAM *ram, CPU *cpu, int n) {
         {-1, 0, 0, 0}
     };
     setPrograma(cpu, trecho2);
-    iniciarCPU(cpu, ram);
+    iniciarCPU(cpu, ram, &l1, &l2, &l3);
 
     int i = 2;
     
@@ -461,7 +507,7 @@ void programaFibonat(RAM *ram, CPU *cpu, int n) {
             {-1, 0, 0, 0}
         };
         setPrograma(cpu, soma_fib);
-        iniciarCPU(cpu, ram);
+        iniciarCPU(cpu, ram, &l1, &l2, &l3);
 
 
         Instrucao shift_f0[] = {
@@ -470,7 +516,7 @@ void programaFibonat(RAM *ram, CPU *cpu, int n) {
             {-1, 0, 0, 0}
         };
         setPrograma(cpu, shift_f0);
-        iniciarCPU(cpu, ram);
+        iniciarCPU(cpu, ram, &l1, &l2, &l3);
         
 
         Instrucao shift_f1[] = {
@@ -479,7 +525,7 @@ void programaFibonat(RAM *ram, CPU *cpu, int n) {
             {-1, 0, 0, 0}
         };
         setPrograma(cpu, shift_f1);
-        iniciarCPU(cpu, ram);
+        iniciarCPU(cpu, ram, &l1, &l2, &l3);
         
         i++;
     }
@@ -491,7 +537,7 @@ void programaFibonat(RAM *ram, CPU *cpu, int n) {
         {-1, 0, 0, 0}
     };
     setPrograma(cpu, trecho_final);
-    iniciarCPU(cpu, ram);
+    iniciarCPU(cpu, ram, &l1, &l2, &l3);
     
     int fib_final = trecho_final[1].add2;
     printf("\nO resultado de F(%d) eh: %d\n", n, fib_final);
@@ -505,6 +551,10 @@ void programaDet(RAM *ram, CPU *cpu, int a00, int a01, int a10, int a11) {
 
     // --- 1. Calcula Diagonal Principal: (a00 * a11) ---
     printf("\n-> Calculando Diagonal Principal...\n");
+    Cache l1, l2, l3;
+    inicializarCache(&l1, 16, 1);
+    inicializarCache(&l2, 32, 2);
+    inicializarCache(&l3, 64, 3);
     
     // Executa a multiplicacao (resultado vai para RAM[0])
     programaMult(ram, cpu, a00, a11);
@@ -516,7 +566,7 @@ void programaDet(RAM *ram, CPU *cpu, int a00, int a01, int a10, int a11) {
         {-1, 0, 0, 0}
     };
     setPrograma(cpu, resgateP);
-    iniciarCPU(cpu, ram);
+    iniciarCPU(cpu, ram, &l1, &l2, &l3);
     
     int diagPrincipal = resgateP[1].add2; // Valor resgatado
 
@@ -534,7 +584,7 @@ void programaDet(RAM *ram, CPU *cpu, int a00, int a01, int a10, int a11) {
         {-1, 0, 0, 0}
     };
     setPrograma(cpu, resgateS);
-    iniciarCPU(cpu, ram);
+    iniciarCPU(cpu, ram, &l1, &l2, &l3);
     
     int diagSecundaria = resgateS[1].add2; // Valor resgatado
 
@@ -565,7 +615,7 @@ void programaDet(RAM *ram, CPU *cpu, int a00, int a01, int a10, int a11) {
     };
 
     setPrograma(cpu, programaSub);
-    iniciarCPU(cpu, ram);
+    iniciarCPU(cpu, ram, &l1, &l2, &l3);
 
     // O resultado fica salvo no segundo parametro da instrucao de Opcode 5
     int resultadoFinal = programaSub[5].add2;
@@ -585,6 +635,11 @@ void programaExp(RAM *ram, CPU *cpu, int base, int expoente) {
     }
 
     int acumulador = 1; // Elemento neutro da multiplicacao
+    
+    Cache l1, l2, l3;
+    inicializarCache(&l1, 16, 1);
+    inicializarCache(&l2, 32, 2);
+    inicializarCache(&l3, 64, 3);
 
     for (int i = 0; i < expoente; i++) {
         // 1. Executa a multiplicacao na CPU. 
@@ -600,7 +655,7 @@ void programaExp(RAM *ram, CPU *cpu, int base, int expoente) {
         };
 
         setPrograma(cpu, trechoResgate);
-        iniciarCPU(cpu, ram);
+        iniciarCPU(cpu, ram, &l1, &l2, &l3);
 
         // Atualiza o acumulador com o valor recuperado da CPU
         acumulador = trechoResgate[1].add2;
@@ -627,6 +682,11 @@ void programaPrimo(RAM *ram, CPU *cpu, int n) {
     //ram[2]: resultado do resto (n % d)
 
     criarRAM_vazia(ram, 3);
+
+    Cache l1, l2, l3;
+    inicializarCache(&l1, 16, 1);
+    inicializarCache(&l2, 32, 2);
+    inicializarCache(&l3, 64, 3);
     
     //trecho 1: inicializa ram[0] com n e ram[1] com o primeiro divisor d=2
     Instrucao trecho1[] = {
@@ -637,7 +697,7 @@ void programaPrimo(RAM *ram, CPU *cpu, int n) {
         {-1, 0, 0, 0}
     };
     setPrograma(cpu, trecho1);
-    iniciarCPU(cpu, ram);
+    iniciarCPU(cpu, ram, &l1, &l2, &l3);
 
     int divisor_atual = 2;
     int resto = -1; //inicializa com valor nao-zero
@@ -652,7 +712,7 @@ void programaPrimo(RAM *ram, CPU *cpu, int n) {
             {-1, 0, 0, 0}
         };
         setPrograma(cpu, trecho_atualiza_divisor);
-        iniciarCPU(cpu, ram);
+        iniciarCPU(cpu, ram, &l1, &l2, &l3);
         
         //2. calcula o resto (modulo): ram[2] = ram[0] % ram[1]
         //opcode 6 (resto)
@@ -663,7 +723,7 @@ void programaPrimo(RAM *ram, CPU *cpu, int n) {
             {-1, 0, 0, 0}
         };
         setPrograma(cpu, trecho_calcula_resto);
-        iniciarCPU(cpu, ram);
+        iniciarCPU(cpu, ram, &l1, &l2, &l3);
         	
         resto = trecho_calcula_resto[2].add2;
         printf("\nTeste: %d %% %d = %d\n", n, divisor_atual, resto);
@@ -698,6 +758,10 @@ void programaRaizQuadrada(RAM *ram, CPU *cpu, int n) {
     //2: resultado de divisao (n/x_k) 
     //3: x_k+1 (proxima aproximacao)
     criarRAM_vazia(ram, 4);
+    Cache l1, l2, l3;
+    inicializarCache(&l1, 16, 1);
+    inicializarCache(&l2, 32, 2);
+    inicializarCache(&l3, 64, 3);
 
     //inicializa ram[0] com n e ram[1] com a primeira aproximacao (x_0 = n/2 ou n/4)
     int aproximacao_inicial = n / 2;
@@ -711,7 +775,7 @@ void programaRaizQuadrada(RAM *ram, CPU *cpu, int n) {
         {-1, 0, 0, 0}
     };
     setPrograma(cpu, trecho1);
-    iniciarCPU(cpu, ram);
+    iniciarCPU(cpu, ram, &l1, &l2, &l3);
 
     //as aproximacoes serao feitas usando variaveis c, e a cpu apenas para calculos
     int x_k = aproximacao_inicial;
@@ -734,7 +798,7 @@ void programaRaizQuadrada(RAM *ram, CPU *cpu, int n) {
             {-1, 0, 0, 0}
         };
         setPrograma(cpu, trecho_leitura_div);
-        iniciarCPU(cpu, ram);
+        iniciarCPU(cpu, ram, &l1, &l2, &l3);
         int n_sobre_xk = trecho_leitura_div[1].add2;
         
         //2. soma x_k + (n / x_k)
@@ -751,7 +815,7 @@ void programaRaizQuadrada(RAM *ram, CPU *cpu, int n) {
             {-1, 0, 0, 0}
         };
         setPrograma(cpu, trecho_leitura_final);
-        iniciarCPU(cpu, ram);
+        iniciarCPU(cpu, ram, &l1, &l2, &l3);
         
         x_k = trecho_leitura_final[1].add2;
 
@@ -775,6 +839,11 @@ void programaRaizCubica(RAM *ram, CPU *cpu, int n) {
     //a ram precisa ser reiniciada ou limpa, mas vamos usar a mesma ram para os subprogramas
     criarRAM_vazia(ram, 4);
 
+    Cache l1, l2, l3;
+    inicializarCache(&l1, 16, 1);
+    inicializarCache(&l2, 32, 2);
+    inicializarCache(&l3, 64, 3);
+
     //inicializa ram[0] com n e ram[1] com a primeira aproximacao (x_0 = n/3 ou n/4)
     int sinal = (n < 0) ? -1 : 1;
     int abs_n = abs(n);
@@ -789,7 +858,7 @@ void programaRaizCubica(RAM *ram, CPU *cpu, int n) {
         {-1, 0, 0, 0}
     };
     setPrograma(cpu, trecho1);
-    iniciarCPU(cpu, ram);
+    iniciarCPU(cpu, ram, &l1, &l2, &l3);
 
     int x_k = aproximacao_inicial;
     int x_k_anterior = 0;
@@ -811,7 +880,7 @@ void programaRaizCubica(RAM *ram, CPU *cpu, int n) {
             {-1, 0, 0, 0}
         };
         setPrograma(cpu, trecho_leitura_mult);
-        iniciarCPU(cpu, ram);
+        iniciarCPU(cpu, ram, &l1, &l2, &l3);
         int xk_quadrado = trecho_leitura_mult[1].add2;
         
         if (xk_quadrado == 0) break; 
@@ -827,7 +896,7 @@ void programaRaizCubica(RAM *ram, CPU *cpu, int n) {
             {-1, 0, 0, 0}
         };
         setPrograma(cpu, trecho_leitura_div);
-        iniciarCPU(cpu, ram);
+        iniciarCPU(cpu, ram, &l1, &l2, &l3);
         int n_sobre_xk2 = trecho_leitura_div[1].add2;
         
         //3. calcula 2 * x_k + (n / x_k^2)
@@ -844,7 +913,7 @@ void programaRaizCubica(RAM *ram, CPU *cpu, int n) {
             {-1, 0, 0, 0}
         };
         setPrograma(cpu, trecho_leitura_final);
-        iniciarCPU(cpu, ram);
+        iniciarCPU(cpu, ram, &l1, &l2, &l3);
         
         x_k = trecho_leitura_final[1].add2;
 

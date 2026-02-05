@@ -92,11 +92,6 @@ void iniciarCPU(CPU *cpu, RAM *ram, Cache *l1, Cache *l2, Cache *l3) {
                 }
                 break;
             }
-            default: {
-                printf("Erro: Opcode invalido: %d\n", cpu->opcode);
-                cpu->opcode = -1; // Forca halt
-                break;
-            }
             case 6: {
                 buscarNaMemoria(inst.add1, &cpu->registrador1, l1, l2, l3, ram);
                 buscarNaMemoria(inst.add2, &cpu->registrador2, l1, l2, l3, ram);
