@@ -38,5 +38,7 @@ void imprimirEstatisticas(Cache *l1, Cache *l2, Cache *l3);
 int procurarNaCache(Cache *cache, int endBloco);
 void atualizarLRU(Cache *cache, int indiceAcessado);
 int encontrarLinhaParaSubstituir(Cache *cache);
+void escreverBackNaRam(RAM *ram, BlocoMemoria bloco);
+void inserirNaCache(Cache *cache, BlocoMemoria novoBloco, RAM *ram);
 
 #endif
