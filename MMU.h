@@ -1,22 +1,38 @@
 #ifndef MMU_H
 #define MMU_H
 
+#include "RAM.h"
+
 #define TAM_BLOCO 4
 
+// Bloco de memória
 typedef struct {
     int palavras[TAM_BLOCO];
     int endBloco;            // Endereço original do bloco na RAM 
     
-    // Metadados para controle da Cache
+    // Metadados
     int tag;                 
     int valido;              // 0 = Lixo de memória, 1 = Dado válido
-    int atualizado;          // 1 = Foi modificado na cache, precisa salvar na RAM
+    int atualizado;          // 1 = Foi modificado na cache, precisa salvar na RAM (Dirty bit)
     int contador_acesso;     // LRU (
     int custo;               
     int cacheHit;            
     
 } BlocoMemoria;
 
-void MMU_busca(int endereco, int *dado_retorno);
+// A Cache
+typedef struct {
+    BlocoMemoria *linhas;  
+    int tamanho;           
+    int id;      
+    
+    // Estatísticas
+    int hits;
+    int misses;
+} Cache;
+
+void inicializarCache(Cache *cache, int tamanho, int id);
+void buscarNaMemoria(int endereco, int *dado, Cache *l1, Cache *l2, Cache *l3, RAM *ram);
+void imprimirEstatisticas(Cache *l1, Cache *l2, Cache *l3);
 
 #endif
