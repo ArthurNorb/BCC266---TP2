@@ -74,7 +74,6 @@ void inserirNaCache(Cache *cache, BlocoMemoria novoBloco, RAM *ram) {
 
     // salva na RAM os dados da linha vítima
     if (linhaVitima->valido && linhaVitima->atualizado) {
-        cache->hits--;
         escreverBackNaRam(ram, *linhaVitima);
     }
 
