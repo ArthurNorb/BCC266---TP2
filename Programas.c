@@ -53,8 +53,9 @@ void imprimeMenu(){
         printf("[8]  Programa Exponencial\n");
         printf("[9]  Programa Fibonat\n");
         printf("[10] Programa Numeros Primos\n");
-        printf("[11] Programa Raiz Quadrada");
-        printf("[12] Programa Raiz Cubica");
+        printf("[11] Programa Raiz Quadrada\n");
+        printf("[12] Programa Raiz Cubica\n");
+        printf("[13] Rodar Arquivo 'instructions2.txt'\n");
         printf("[0] Sair\n");
         printf("Digite um dos nuneros para escolher uma opcao: ");
 }
@@ -927,6 +928,60 @@ void programaRaizCubica(RAM *ram, CPU *cpu, int n) {
     printf("\nO resultado da raiz cubica de %d eh (aproximado): %d\n", n * sinal, resultado_final);
 }
 
+void programaDoArquivo(RAM *ram, CPU *cpu, char *nomeArquivo) {
+    printf("\n>>> Executando Instrucoes do Arquivo: %s <<<\n", nomeArquivo);
+
+    FILE *arquivo = fopen(nomeArquivo, "r");
+    if (arquivo == NULL) {
+        printf("Erro: Nao foi possivel abrir o arquivo %s. Rode o gerador primeiro!\n", nomeArquivo);
+        return;
+    }
+
+    // Conta quantas linhas tem para alocar
+    int linhas = 0;
+    char ch;
+    while(!feof(arquivo)) {
+        ch = fgetc(arquivo);
+        if(ch == '\n') linhas++;
+    }
+    rewind(arquivo); // Volta pro inicio
+
+    Instrucao *programa = alocarPrograma(linhas + 1);
+    
+    int op, end1, word1, end2, word2, end3, word3;
+    int i = 0;
+
+    // Formato do arquivo: op:end1:word1:end2:word2:end3:word3
+    while (fscanf(arquivo, "%d:%d:%d:%d:%d:%d:%d", 
+                  &op, &end1, &word1, &end2, &word2, &end3, &word3) != EOF) {
+        
+        programa[i].opcode = op;
+        programa[i].add1 = (end1 * 4) + word1;
+        programa[i].add2 = (end2 * 4) + word2;
+        programa[i].add3 = (end3 * 4) + word3;
+        
+        i++;
+    }
+    programa[i].opcode = -1; // Garante o Halt no final
+    fclose(arquivo);
+
+    Cache l1, l2, l3;
+    int tamanhoRAM = 4000; // 1000 blocos * 4 palavras
+    
+    criarRAM_vazia(ram, tamanhoRAM);
+    inicializarCache(&l1, 64, 1);   // Ex: 64 linhas
+    inicializarCache(&l2, 128, 2);  // Ex: 128 linhas
+    inicializarCache(&l3, 256, 3);  // Ex: 256 linhas
+
+    setPrograma(cpu, programa);
+    iniciarCPU(cpu, ram, &l1, &l2, &l3);
+
+    imprimirEstatisticas(&l1, &l2, &l3);
+
+    free(l1.linhas); free(l2.linhas); free(l3.linhas);
+    free(programa);
+}
+
 int main() {
 
     int aux = 1;
@@ -1004,7 +1059,9 @@ int main() {
         case 12:
             programaRaizCubica(&ram, &cpu, 27);
             break;
-
+        case 13:
+            programaDoArquivo(&ram, &cpu, "instructions2.txt");
+            break;
         case 0:
             aux = 0;
             break;
