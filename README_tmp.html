@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>README.md</title>
+<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+
+<style>
+/* https://github.com/microsoft/vscode/blob/master/extensions/markdown-language-features/media/markdown.css */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+body {
+	font-family: var(--vscode-markdown-font-family, -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif);
+	font-size: var(--vscode-markdown-font-size, 14px);
+	padding: 0 26px;
+	line-height: var(--vscode-markdown-line-height, 22px);
+	word-wrap: break-word;
+}
+
+#code-csp-warning {
+	position: fixed;
+	top: 0;
+	right: 0;
+	color: white;
+	margin: 16px;
+	text-align: center;
+	font-size: 12px;
+	font-family: sans-serif;
+	background-color:#444444;
+	cursor: pointer;
+	padding: 6px;
+	box-shadow: 1px 1px 1px rgba(0,0,0,.25);
+}
+
+#code-csp-warning:hover {
+	text-decoration: none;
+	background-color:#007acc;
+	box-shadow: 2px 2px 2px rgba(0,0,0,.25);
+}
+
+body.scrollBeyondLastLine {
+	margin-bottom: calc(100vh - 22px);
+}
+
+body.showEditorSelection .code-line {
+	position: relative;
+}
+
+body.showEditorSelection .code-active-line:before,
+body.showEditorSelection .code-line:hover:before {
+	content: "";
+	display: block;
+	position: absolute;
+	top: 0;
+	left: -12px;
+	height: 100%;
+}
+
+body.showEditorSelection li.code-active-line:before,
+body.showEditorSelection li.code-line:hover:before {
+	left: -30px;
+}
+
+.vscode-light.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.15);
+}
+
+.vscode-light.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.40);
+}
+
+.vscode-light.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-dark.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.4);
+}
+
+.vscode-dark.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.60);
+}
+
+.vscode-dark.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-high-contrast.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 160, 0, 0.7);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 160, 0, 1);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+img {
+	max-width: 100%;
+	max-height: 100%;
+}
+
+a {
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+a:focus,
+input:focus,
+select:focus,
+textarea:focus {
+	outline: 1px solid -webkit-focus-ring-color;
+	outline-offset: -1px;
+}
+
+hr {
+	border: 0;
+	height: 2px;
+	border-bottom: 2px solid;
+}
+
+h1 {
+	padding-bottom: 0.3em;
+	line-height: 1.2;
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+}
+
+h1, h2, h3 {
+	font-weight: normal;
+}
+
+table {
+	border-collapse: collapse;
+}
+
+table > thead > tr > th {
+	text-align: left;
+	border-bottom: 1px solid;
+}
+
+table > thead > tr > th,
+table > thead > tr > td,
+table > tbody > tr > th,
+table > tbody > tr > td {
+	padding: 5px 10px;
+}
+
+table > tbody > tr + tr > td {
+	border-top: 1px solid;
+}
+
+blockquote {
+	margin: 0 7px 0 5px;
+	padding: 0 16px 0 10px;
+	border-left-width: 5px;
+	border-left-style: solid;
+}
+
+code {
+	font-family: Menlo, Monaco, Consolas, "Droid Sans Mono", "Courier New", monospace, "Droid Sans Fallback";
+	font-size: 1em;
+	line-height: 1.357em;
+}
+
+body.wordWrap pre {
+	white-space: pre-wrap;
+}
+
+pre:not(.hljs),
+pre.hljs code > div {
+	padding: 16px;
+	border-radius: 3px;
+	overflow: auto;
+}
+
+pre code {
+	color: var(--vscode-editor-foreground);
+	tab-size: 4;
+}
+
+/** Theming */
+
+.vscode-light pre {
+	background-color: rgba(220, 220, 220, 0.4);
+}
+
+.vscode-dark pre {
+	background-color: rgba(10, 10, 10, 0.4);
+}
+
+.vscode-high-contrast pre {
+	background-color: rgb(0, 0, 0);
+}
+
+.vscode-high-contrast h1 {
+	border-color: rgb(0, 0, 0);
+}
+
+.vscode-light table > thead > tr > th {
+	border-color: rgba(0, 0, 0, 0.69);
+}
+
+.vscode-dark table > thead > tr > th {
+	border-color: rgba(255, 255, 255, 0.69);
+}
+
+.vscode-light h1,
+.vscode-light hr,
+.vscode-light table > tbody > tr + tr > td {
+	border-color: rgba(0, 0, 0, 0.18);
+}
+
+.vscode-dark h1,
+.vscode-dark hr,
+.vscode-dark table > tbody > tr + tr > td {
+	border-color: rgba(255, 255, 255, 0.18);
+}
+
+</style>
+
+<style>
+/* Tomorrow Theme */
+/* http://jmblog.github.com/color-themes-for-google-code-highlightjs */
+/* Original theme - https://github.com/chriskempson/tomorrow-theme */
+
+/* Tomorrow Comment */
+.hljs-comment,
+.hljs-quote {
+	color: #8e908c;
+}
+
+/* Tomorrow Red */
+.hljs-variable,
+.hljs-template-variable,
+.hljs-tag,
+.hljs-name,
+.hljs-selector-id,
+.hljs-selector-class,
+.hljs-regexp,
+.hljs-deletion {
+	color: #c82829;
+}
+
+/* Tomorrow Orange */
+.hljs-number,
+.hljs-built_in,
+.hljs-builtin-name,
+.hljs-literal,
+.hljs-type,
+.hljs-params,
+.hljs-meta,
+.hljs-link {
+	color: #f5871f;
+}
+
+/* Tomorrow Yellow */
+.hljs-attribute {
+	color: #eab700;
+}
+
+/* Tomorrow Green */
+.hljs-string,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-addition {
+	color: #718c00;
+}
+
+/* Tomorrow Blue */
+.hljs-title,
+.hljs-section {
+	color: #4271ae;
+}
+
+/* Tomorrow Purple */
+.hljs-keyword,
+.hljs-selector-tag {
+	color: #8959a8;
+}
+
+.hljs {
+	display: block;
+	overflow-x: auto;
+	color: #4d4d4c;
+	padding: 0.5em;
+}
+
+.hljs-emphasis {
+	font-style: italic;
+}
+
+.hljs-strong {
+	font-weight: bold;
+}
+</style>
+
+<style>
+/*
+ * Markdown PDF CSS
+ */
+
+ body {
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif, "Meiryo";
+	padding: 0 12px;
+}
+
+pre {
+	background-color: #f8f8f8;
+	border: 1px solid #cccccc;
+	border-radius: 3px;
+	overflow-x: auto;
+	white-space: pre-wrap;
+	overflow-wrap: break-word;
+}
+
+pre:not(.hljs) {
+	padding: 23px;
+	line-height: 19px;
+}
+
+blockquote {
+	background: rgba(127, 127, 127, 0.1);
+	border-color: rgba(0, 122, 204, 0.5);
+}
+
+.emoji {
+	height: 1.4em;
+}
+
+code {
+	font-size: 14px;
+	line-height: 19px;
+}
+
+/* for inline code */
+:not(pre):not(.hljs) > code {
+	color: #C9AE75; /* Change the old color so it seems less like an error */
+	font-size: inherit;
+}
+
+/* Page Break : use <div class="page"/> to insert page break
+-------------------------------------------------------- */
+.page {
+	page-break-after: always;
+}
+
+</style>
+
+<script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+</head>
+<body>
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: document.body.classList.contains('vscode-dark') || document.body.classList.contains('vscode-high-contrast')
+          ? 'dark'
+          : 'default'
+    });
+  </script>
+<h1 id="bcc266---trabalho-pr%C3%A1tico-2-hierarquia-de-mem%C3%B3ria">BCC266 - Trabalho Prático 2: Hierarquia de Memória</h1>
+<p><strong>Disciplina:</strong> Organização de Computadores - UFOP<br>
+<strong>Alunos:</strong> Arthur Norberto da Silveira, Rafael Prado Mol e Silva, Rosalino Kenedy Serra</p>
+<hr>
+<h2 id="1-introdu%C3%A7%C3%A3o-e-objetivos">1. Introdução e Objetivos</h2>
+<p>Este trabalho prático consiste na implementação de um simulador de hierarquia de memória cache com três níveis (L1, L2, L3) interligados a uma memória principal (RAM) e uma CPU.</p>
+<p>O objetivo principal é analisar o comportamento e o desempenho de diferentes configurações de cache (tamanhos variados) sob diferentes cargas de trabalho (probabilidades de repetição de instruções), observando o impacto das políticas de gerenciamento de memória.</p>
+<h3 id="principais-caracter%C3%ADsticas-implementadas">Principais Características Implementadas:</h3>
+<ul>
+<li><strong>Arquitetura:</strong> CPU $\leftrightarrow$ MMU $\leftrightarrow$ L1 $\leftrightarrow$ L2 $\leftrightarrow$ L3 $\leftrightarrow$ RAM.</li>
+<li><strong>Unidade de Transferência:</strong> Blocos de 4 palavras (inteiros).</li>
+<li><strong>Mapeamento:</strong> Associativo (simulado através de busca sequencial na cache).</li>
+<li><strong>Política de Substituição:</strong> <strong>LRU</strong> (Least Recently Used) - substitui o bloco menos recentemente acessado.</li>
+<li><strong>Política de Escrita:</strong> <strong>Write-Back</strong> (Escrita Retardada) - a RAM só é atualizada quando um bloco &quot;sujo&quot; (modificado) é expulso da cache.</li>
+</ul>
+<hr>
+<h2 id="2-como-compilar-e-rodar">2. Como Compilar e Rodar</h2>
+<p>O projeto utiliza um <code>Makefile</code> para automatizar a compilação.</p>
+<h3 id="compila%C3%A7%C3%A3o-b%C3%A1sica">Compilação Básica</h3>
+<p>Para compilar todo o projeto (Simulador + Gerador de Instruções):</p>
+<pre class="hljs"><code><div>make
+</div></code></pre>
+<h3 id="execu%C3%A7%C3%A3o-manual">Execução Manual</h3>
+<p>Gere o arquivo de instruções (certifique-se de configurar a probabilidade desejada no código do gerador antes):</p>
+<pre class="hljs"><code><div>./gerador_instrucoes
+</div></code></pre>
+<p>Execute o simulador:</p>
+<pre class="hljs"><code><div>make run
+</div></code></pre>
+<h3 id="execu%C3%A7%C3%A3o-automatizada-bateria-de-testes">Execução Automatizada (Bateria de Testes)</h3>
+<p>Para gerar a tabela completa de resultados (M1 a M5) automaticamente:</p>
+<pre class="hljs"><code><div>./rodar_testes.sh
+</div></code></pre>
+<h3 id="comandos-%C3%BAteis-do-makefile">Comandos Úteis do Makefile</h3>
+<ul>
+<li><code>make</code>: Compila o projeto.</li>
+<li><code>make run</code>: Compila (se necessário) e roda o simulador.</li>
+<li><code>make clean</code>: Remove arquivos objeto (.o) e executáveis para uma compilação limpa.</li>
+</ul>
+<hr>
+<h2 id="3-resultados-experimentais">3. Resultados Experimentais</h2>
+<p>Os testes foram realizados utilizando 5 configurações de máquinas (M1 a M5) e 3 cenários de repetição de instruções (50%, 75% e 90%), conforme especificado no enunciado.</p>
+<h3 id="cen%C3%A1rio-1-50-de-repeti%C3%A7%C3%A3o">Cenário 1: 50% de Repetição</h3>
+<p><strong>Característica:</strong> Baixa localidade temporal. Carga de trabalho mais dispersa.</p>
+<table>
+<thead>
+<tr>
+<th>Máquina</th>
+<th>L1</th>
+<th>L2</th>
+<th>L3</th>
+<th>Taxa C1 %</th>
+<th>Taxa C2 %</th>
+<th>Taxa C3 %</th>
+<th>Taxa RAM %</th>
+<th>Tempo (u.h.)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>M1</td>
+<td>8</td>
+<td>16</td>
+<td>32</td>
+<td>22,84%</td>
+<td>60,31%</td>
+<td>2,62%</td>
+<td>14,23%</td>
+<td>2.643.253</td>
+</tr>
+<tr>
+<td>M2</td>
+<td>32</td>
+<td>64</td>
+<td>128</td>
+<td>86,27%</td>
+<td>0,64%</td>
+<td>0,82%</td>
+<td>12,27%</td>
+<td>2.175.604</td>
+</tr>
+<tr>
+<td>M3</td>
+<td>16</td>
+<td>64</td>
+<td>256</td>
+<td>83,50%</td>
+<td>2,45%</td>
+<td>3,31%</td>
+<td>10,74%</td>
+<td>1.953.790</td>
+</tr>
+<tr>
+<td>M4</td>
+<td>8</td>
+<td>32</td>
+<td>128</td>
+<td>22,84%</td>
+<td>63,44%</td>
+<td>1,36%</td>
+<td>12,36%</td>
+<td>2.301.613</td>
+</tr>
+<tr>
+<td>M5</td>
+<td>16</td>
+<td>32</td>
+<td>64</td>
+<td>83,50%</td>
+<td>1,19%</td>
+<td>1,22%</td>
+<td>14,09%</td>
+<td>2.501.980</td>
+</tr>
+</tbody>
+</table>
+<h3 id="cen%C3%A1rio-2-75-de-repeti%C3%A7%C3%A3o">Cenário 2: 75% de Repetição</h3>
+<p><strong>Característica:</strong> Média localidade temporal.</p>
+<table>
+<thead>
+<tr>
+<th>Máquina</th>
+<th>L1</th>
+<th>L2</th>
+<th>L3</th>
+<th>Taxa C1 %</th>
+<th>Taxa C2 %</th>
+<th>Taxa C3 %</th>
+<th>Taxa RAM %</th>
+<th>Tempo (u.h.)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>M1</td>
+<td>8</td>
+<td>16</td>
+<td>32</td>
+<td>80,90%</td>
+<td>10,82%</td>
+<td>0,39%</td>
+<td>7,89%</td>
+<td>987.819</td>
+</tr>
+<tr>
+<td>M2</td>
+<td>32</td>
+<td>64</td>
+<td>128</td>
+<td>92,21%</td>
+<td>0,25%</td>
+<td>0,48%</td>
+<td>7,06%</td>
+<td>876.426</td>
+</tr>
+<tr>
+<td>M3</td>
+<td>16</td>
+<td>64</td>
+<td>256</td>
+<td>91,97%</td>
+<td>0,35%</td>
+<td>1,32%</td>
+<td>6,36%</td>
+<td>801.726</td>
+</tr>
+<tr>
+<td>M4</td>
+<td>8</td>
+<td>32</td>
+<td>128</td>
+<td>80,90%</td>
+<td>11,26%</td>
+<td>0,70%</td>
+<td>7,14%</td>
+<td>901.059</td>
+</tr>
+<tr>
+<td>M5</td>
+<td>16</td>
+<td>32</td>
+<td>64</td>
+<td>91,97%</td>
+<td>0,16%</td>
+<td>0,29%</td>
+<td>7,58%</td>
+<td>937.896</td>
+</tr>
+</tbody>
+</table>
+<h3 id="cen%C3%A1rio-3-90-de-repeti%C3%A7%C3%A3o">Cenário 3: 90% de Repetição</h3>
+<p><strong>Característica:</strong> Alta localidade temporal. O processador acessa repetidamente os mesmos endereços.</p>
+<table>
+<thead>
+<tr>
+<th>Máquina</th>
+<th>L1</th>
+<th>L2</th>
+<th>L3</th>
+<th>Taxa C1 %</th>
+<th>Taxa C2 %</th>
+<th>Taxa C3 %</th>
+<th>Taxa RAM %</th>
+<th>Tempo (u.h.)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>M1</td>
+<td>8</td>
+<td>16</td>
+<td>32</td>
+<td>93,09%</td>
+<td>4,17%</td>
+<td>0,12%</td>
+<td>2,62%</td>
+<td>333.783</td>
+</tr>
+<tr>
+<td>M2</td>
+<td>32</td>
+<td>64</td>
+<td>128</td>
+<td>97,39%</td>
+<td>0,07%</td>
+<td>0,12%</td>
+<td>2,41%</td>
+<td>304.353</td>
+</tr>
+<tr>
+<td>M3</td>
+<td>16</td>
+<td>64</td>
+<td>256</td>
+<td>97,30%</td>
+<td>0,17%</td>
+<td>0,20%</td>
+<td>2,33%</td>
+<td>296.352</td>
+</tr>
+<tr>
+<td>M4</td>
+<td>8</td>
+<td>32</td>
+<td>128</td>
+<td>93,09%</td>
+<td>4,29%</td>
+<td>0,20%</td>
+<td>2,43%</td>
+<td>311.823</td>
+</tr>
+<tr>
+<td>M5</td>
+<td>16</td>
+<td>32</td>
+<td>64</td>
+<td>97,30%</td>
+<td>0,07%</td>
+<td>0,09%</td>
+<td>2,53%</td>
+<td>318.942</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>Nota:</strong> O tempo de execução é calculado em unidades hipotéticas onde L1=1, L2=10, L3=100, RAM=1000.</p>
+</blockquote>
+<hr>
+<h2 id="4-an%C3%A1lise-e-conclus%C3%A3o">4. Análise e Conclusão</h2>
+<p>Com base nos dados obtidos, podemos tirar as seguintes conclusões sobre o sistema implementado:</p>
+<h3 id="impacto-da-localidade-temporal">Impacto da Localidade Temporal</h3>
+<ul>
+<li>Fica evidente que o aumento da probabilidade de repetição (de 50% para 90%) melhora drasticamente o desempenho da Cache L1.</li>
+<li>Na máquina M1 (a menor configuração), a taxa de acerto da L1 saltou de 22,8% (cenário 50%) para 93,0% (cenário 90%).</li>
+<li>Isso demonstra que caches, mesmo pequenas, são extremamente eficientes para programas que exibem forte localidade temporal (loops frequentes).</li>
+</ul>
+<h3 id="tamanho-da-cache-vs-carga-de-trabalho">Tamanho da Cache vs. Carga de Trabalho</h3>
+<ul>
+<li><strong>No Cenário de 50%:</strong> a diferença entre ter uma cache L1 pequena (M1/M4 com 8 linhas) e uma média (M2/M5 com 16/32 linhas) é brutal. As máquinas M1 e M4 sofreram com muitos misses, sobrecarregando a L2 e a RAM.</li>
+<li><strong>No Cenário de 90%:</strong> essa diferença diminui. Mesmo a M1 conseguiu segurar a maioria das instruções na L1. Isso indica que aumentar o tamanho da cache traz retornos decrescentes quando o programa é muito repetitivo.</li>
+</ul>
+<h3 id="efici%C3%AAncia-do-lru">Eficiência do LRU</h3>
+<p>A política LRU mostrou-se eficaz em manter os blocos mais úteis próximos à CPU. Nos cenários de alta repetição, os dados raramente precisavam ser buscados na RAM (apenas ~2,5% dos acessos), provando que o algoritmo identificou corretamente os dados &quot;quentes&quot;.</p>
+<h3 id="observa%C3%A7%C3%A3o-sobre-o-gerador-de-instru%C3%A7%C3%B5es">Observação sobre o Gerador de Instruções</h3>
+<p>Notou-se que o tempo total e o número absoluto de acessos diminuem conforme a probabilidade aumenta. Isso ocorre devido à lógica do gerador: instruções repetidas dentro de um loop (N_FOR) consomem iterações do gerador mais rapidamente, resultando em menos instruções únicas e totais geradas para o mesmo tamanho de entrada.</p>
+<h3 id="conclus%C3%A3o-final">Conclusão Final</h3>
+<p>Em suma, a implementação da hierarquia de memória com MMU e políticas Write-Back/LRU foi bem-sucedida, validando os conceitos teóricos de que a hierarquia de memória é essencial para reduzir o gargalo de desempenho entre a CPU e a Memória Principal.</p>
+
+</body>
+</html>
