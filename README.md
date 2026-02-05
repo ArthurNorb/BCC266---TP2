@@ -2,12 +2,20 @@
 
 Trabalho Prático 2 de Organização de Computadores - UFOP
 
-## Como compilar e rodar
+## Compilar e rodar
+
+### Manualmente
 
 ```bash
   make
   ./gerador_instrucoes # para gerar o arquivo instructions2.txt
   make run
+```
+
+### Script de testes
+
+```bash
+  ./rodar_testes.sh
 ```
 
 ## Instruções Makefile

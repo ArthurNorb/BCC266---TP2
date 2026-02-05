@@ -928,8 +928,8 @@ void programaRaizCubica(RAM *ram, CPU *cpu, int n) {
     printf("\nO resultado da raiz cubica de %d eh (aproximado): %d\n", n * sinal, resultado_final);
 }
 
-void programaDoArquivo(RAM *ram, CPU *cpu, char *nomeArquivo) {
-    printf("\n>>> Executando Instrucoes do Arquivo: %s <<<\n", nomeArquivo);
+void programaDoArquivo(RAM *ram, CPU *cpu, char *nomeArquivo, int tamL1, int tamL2, int tamL3) {
+    printf("Configuracao: L1=%d, L2=%d, L3=%d | Arquivo: %s\n", tamL1, tamL2, tamL3, nomeArquivo);
 
     FILE *arquivo = fopen(nomeArquivo, "r");
     if (arquivo == NULL) {
@@ -969,9 +969,9 @@ void programaDoArquivo(RAM *ram, CPU *cpu, char *nomeArquivo) {
     int tamanhoRAM = 4000; // 1000 blocos * 4 palavras
     
     criarRAM_vazia(ram, tamanhoRAM);
-    inicializarCache(&l1, 64, 1);   // Ex: 64 linhas
-    inicializarCache(&l2, 128, 2);  // Ex: 128 linhas
-    inicializarCache(&l3, 256, 3);  // Ex: 256 linhas
+    inicializarCache(&l1, tamL1, 1);
+    inicializarCache(&l2, tamL2, 2);
+    inicializarCache(&l3, tamL3, 3);
 
     setPrograma(cpu, programa);
     iniciarCPU(cpu, ram, &l1, &l2, &l3);
@@ -982,23 +982,35 @@ void programaDoArquivo(RAM *ram, CPU *cpu, char *nomeArquivo) {
     free(programa);
 }
 
-int main() {
-
-    int aux = 1;
-    int opcao;
-    int retornoScanf ;    
-    srand(time(NULL)); 
-
+int main(int argc, char *argv[]) {
     RAM ram = {NULL, 0};
     CPU cpu;
-    
-     while (aux == 1)
+    srand(time(NULL)); 
+
+    // --- MODO AUTOMÁTICO (Para o script rodar_testes.sh) ---
+    if (argc == 5) {
+        int l1 = atoi(argv[1]);
+        int l2 = atoi(argv[2]);
+        int l3 = atoi(argv[3]);
+        char *arquivo = argv[4];
+
+        programaDoArquivo(&ram, &cpu, arquivo, l1, l2, l3);
+        
+        liberarRAM(&ram);
+        return 0; 
+    }
+
+    // --- MODO INTERATIVO ---
+    int aux = 1;
+    int opcao;
+    int retornoScanf;    
+
+    while (aux == 1)
     {
         imprimeMenu();
         retornoScanf = scanf("%d", &opcao);
         
-        if (retornoScanf == 0) //verifica se o scanf leu alguma coisa, normalmente entra aqui se for digitado uma letra
-        {
+        if (retornoScanf == 0) {
             limpar_tela();
             printf("ERRO: Opcao invalida, digite novamente!\n");
             limpar_buffer();
@@ -1059,9 +1071,11 @@ int main() {
         case 12:
             programaRaizCubica(&ram, &cpu, 27);
             break;
+
         case 13:
-            programaDoArquivo(&ram, &cpu, "instructions2.txt");
+            programaDoArquivo(&ram, &cpu, "instructions2.txt", 64, 128, 256);
             break;
+
         case 0:
             aux = 0;
             break;
@@ -1071,21 +1085,11 @@ int main() {
             break;
         }
 
-        printf("\nPressione ENTER para voltar ao menu...");
-        limpar_buffer();
+        if (aux != 0) {
+            printf("\nPressione ENTER para voltar ao menu...");
+            limpar_buffer();
+        }
     }
-
-    //programaAleatorio(&ram, &cpu, 20); // Teste com 20 instrucoes aleatorias
-    //programaMult(&ram, &cpu, 15, 150);
-    //programaDiv(&ram, &cpu, 175, 4);
-    //programaFat(&ram, &cpu, 10);
-    //programaSomaMatriz(&ram, &cpu, 3); // 3x3
-    //programaEuclides(&ram, &cpu, 8, 12);
-    //programaMMC(&ram, &cpu, 8, 12);
-    //programaDet(&ram, &cpu, 2, 4, 8, 16)
-    //programaExp(&ram, &cpu, 2, 5)
-    //programaFibonat(&ram, &cpu, 10);
-    
 
     liberarRAM(&ram);
     return 0;
