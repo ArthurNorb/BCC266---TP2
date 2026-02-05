@@ -36,3 +36,47 @@ void imprimirEstatisticas(Cache *l1, Cache *l2, Cache *l3) {
     printf("Cache L2 -> Hits: %d | Misses: %d\n", l2->hits, l2->misses);
     printf("Cache L3 -> Hits: %d | Misses: %d\n", l3->hits, l3->misses);
 }
+
+// Retorna a posição da linha onde o bloco está
+int procurarNaCache(Cache *cache, int endBloco) {
+    for (int i = 0; i < cache->tamanho; i++) {
+        if (cache->linhas[i].valido && cache->linhas[i].endBloco == endBloco) {
+            return i;
+        }
+    }
+    return -1; // Não encontrado
+}
+
+void atualizarLRU(Cache *cache, int indiceAcessado) {
+    for (int i = 0; i < cache->tamanho; i++) {
+        if (cache->linhas[i].valido) {
+            cache->linhas[i].contador_acesso++;
+        }
+    }
+    
+    // reseta quem acabou de ser usado
+    if (indiceAcessado != -1) {
+        cache->linhas[indiceAcessado].contador_acesso = 0;
+    }
+}
+
+int encontrarLinhaParaSubstituir(Cache *cache) {
+    for (int i = 0; i < cache->tamanho; i++) {
+        if (!cache->linhas[i].valido) {
+            return i; // Achou um buraco vazio, usa ele
+        }
+    }
+
+    // Se não tem vazio, procura o "mais velho" 
+    int indiceMaisVelho = 0;
+    int maiorIdade = -1;
+
+    for (int i = 0; i < cache->tamanho; i++) {
+        if (cache->linhas[i].contador_acesso > maiorIdade) {
+            maiorIdade = cache->linhas[i].contador_acesso;
+            indiceMaisVelho = i;
+        }
+    }
+
+    return indiceMaisVelho;
+}
