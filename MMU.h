@@ -33,6 +33,7 @@ typedef struct {
 
 void inicializarCache(Cache *cache, int tamanho, int id);
 void buscarNaMemoria(int endereco, int *dado, Cache *l1, Cache *l2, Cache *l3, RAM *ram);
+void escreverNaMemoria(int endereco, int dado, Cache *l1, Cache *l2, Cache *l3, RAM *ram);
 void imprimirEstatisticas(Cache *l1, Cache *l2, Cache *l3);
 
 int procurarNaCache(Cache *cache, int endBloco);

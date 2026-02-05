@@ -180,3 +180,30 @@ void buscarNaMemoria(int endereco, int *dadoRetorno, Cache *l1, Cache *l2, Cache
     int novoIndice = procurarNaCache(l1, endBloco);
     *dadoRetorno = l1->linhas[novoIndice].palavras[indicePalavra];
 }
+
+void escreverNaMemoria(int endereco, int dado, Cache *l1, Cache *l2, Cache *l3, RAM *ram) {
+    int endBloco = endereco / TAM_BLOCO;
+    int indicePalavra = endereco % TAM_BLOCO;
+
+    int iL1 = procurarNaCache(l1, endBloco);
+
+    // Garantir que o bloco está na L1
+    if (iL1 == -1) {
+        l1->misses++; 
+        
+        int lixo;
+        buscarNaMemoria(endereco, &lixo, l1, l2, l3, ram);
+        
+        iL1 = procurarNaCache(l1, endBloco);
+    } else {
+        l1->hits++; 
+    }
+
+    // 4. Agora escrevemos no bloco (que já está na L1)
+    l1->linhas[iL1].palavras[indicePalavra] = dado;
+    
+    l1->linhas[iL1].atualizado = 1;
+    l1->linhas[iL1].valido = 1;
+
+    atualizarLRU(l1, iL1);
+}
