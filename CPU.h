@@ -3,6 +3,7 @@
 
 #include "Instrucao.h"
 #include "RAM.h"
+#include "MMU.h"
 
 typedef struct {
     int registrador1;
@@ -13,6 +14,6 @@ typedef struct {
 } CPU;
 
 void setPrograma(CPU *cpu, Instrucao programaAux[]);
-void iniciarCPU(CPU *cpu, RAM *ram);
+void iniciarCPU(CPU *cpu, RAM *ram, Cache *l1, Cache *l2, Cache *l3);
 
 #endif // CPU_H
